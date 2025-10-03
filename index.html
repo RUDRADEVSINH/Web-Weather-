@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Weather</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="theme-toggle">
+  <label for="themeSelect">🌄 Theme:</label>
+  <select id="themeSelect">
+    <option value="theme1">Forest</option>
+    <option value="theme2">Mountains</option>
+    <option value="theme3">Lake Sunset</option>
+  </select>
+</div>
+
+
+  <div class="weather-container">
+    <h1>Current Weather</h1>
+    <div id="location">Fetching location...</div>
+    <div id="weather">Loading weather...</div>
+  </div>
+
+  <script>
+    const API_KEY = '6549232a5442d89e85b28796311e70c2';
+
+    function fetchWeather(lat, lon) {
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('location').innerText = `${data.name}, ${data.sys.country}`;
+          document.getElementById('weather').innerHTML = `
+            ${data.weather[0].description}<br>
+            🌡️ ${data.main.temp}°C<br>
+            💧 Humidity: ${data.main.humidity}%<br>
+            🌬️ Wind: ${data.wind.speed} m/s
+          `;
+        })
+        .catch(err => {
+          document.getElementById('weather').innerText = 'Error fetching weather.';
+        });
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          fetchWeather(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          document.getElementById('weather').innerText = 'Location permission denied.';
+        }
+      );
+    } else {
+      document.getElementById('weather').innerText = 'Geolocation not supported.';
+    }
+
+    // Theme switching logic
+    const themeSelect = document.getElementById('themeSelect');
+    themeSelect.addEventListener('change', () => {
+      document.body.className = themeSelect.value;
+    });
+  </script>
+</body>
+</html>
